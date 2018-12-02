@@ -9,11 +9,12 @@ from time import time
 
 def Get_cdp_entry(IP):
     try:
-        checklist.append(IP)
         neigborlist = []
+        checklist.append(IP)
         ssh_session = ConnectHandler(device_type="cisco_ios",ip=IP,username=username,password=password)
         hostname = str(ssh_session.find_prompt())[:-1]
         print ("Now connected to: ",hostname)
+        devicesuccess.append(IP)
         cdp_entry = ssh_session.send_command("show cdp entry *")   # get IP-adresses from Neighbors
         cdp_neighbors = ssh_session.send_command("show cdp neighbor ", use_textfsm=True) # get structured Data with TextFSM
         # Debug only: print (cdp_neighbors)
@@ -42,6 +43,7 @@ def Get_cdp_entry(IP):
 ######################
 devicelist = []
 checklist = []
+devicesuccess = []
 Seeddevice = input("Seeddevice : ")
 username = input ("Username to connect to devices : ")
 password = getpass.getpass("Password : ")
@@ -71,4 +73,9 @@ while len(mustcheck) >=1:
     threads.close()
     threads.join()
 
+# Write hosts.txt file with the connected Devices
+with open ("hosts.txt","w") as f:
+    print (devicesuccess)
+    for host in set(devicesuccess):
+        f.write(host+"\n")
 
