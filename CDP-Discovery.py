@@ -26,7 +26,8 @@ def Get_cdp_entry(IP):
         neigbors = set(neigborlist)
         with open (filename,"w") as f:
             for neigbor in cdp_neighbors:
-                f.write(hostname+" -> "+neigbor["local_interface"]+" -> "+neigbor["neighbor_interface"]+" -> "+neigbor["neighbor"])
+                neighbor_no_fwdn = str(neigbor["neighbor"].split(".")[0])
+                f.write(hostname+" -> "+neigbor["local_interface"]+" -> "+neigbor["neighbor_interface"]+" -> "+neighbor_no_fwdn)
                 # debug only: print (hostname+" -> "+neigbor["local_interface"]+" -> "+neigbor["neighbor_interface"]+" -> "+neigbor["neighbor"])
                 f.write("\n")
         for neigbor in neigbors:
@@ -66,7 +67,7 @@ while len(mustcheck) >=1:
     # debug only print ("Devicelist",devicelist)
     # debug only: print ("Checklist",checklist)
     mustcheck = (set(devicelist) - set(checklist))
-    print ("DEvices that have to be checked: ",str(mustcheck))
+    print ("Devices that have to be checked: ",str(mustcheck))
     threads.close()
     threads.join()
 
