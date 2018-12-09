@@ -1,11 +1,9 @@
 from netmiko import ConnectHandler
 import getpass
 from multiprocessing.dummy import Pool as ThreadPool
-from time import time
 
 # Text FSM have to be installed and environment NET_TEXTFSM have to set correctly 
 # see: "https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html"
-
 
 def Get_cdp_entry(IP):
     try:
@@ -38,13 +36,13 @@ def Get_cdp_entry(IP):
         print (e)
         return(None)
     
-
+######################
 # ==== Main Init === #
 ######################
-devicelist = []
-checklist = []
-devicesuccess = []
-Seeddevice = input("Seeddevice : ")
+devicelist = []       # Devices which was discovered by CDP
+checklist = []        # Devices which tryed to check
+devicesuccess = []    # Devices connected Successfully
+Seeddevice = input("Seeddevice (IP-Adress) : ")
 username = input ("Username to connect to devices : ")
 password = getpass.getpass("Password : ")
 
@@ -54,7 +52,7 @@ devicelist.append(Seeddevice)
 First_run = Get_cdp_entry(Seeddevice)
 
 mustcheck = set(set(devicelist) - set(checklist))
-# print ("*"*30+"\n"+str(mustcheck)+"\n"+"*"*30)
+
 # ==== Create Treats and do SSH_Worker ==== #
 
 while len(mustcheck) >=1:
@@ -66,8 +64,6 @@ while len(mustcheck) >=1:
     threads = ThreadPool( num_threads )
     results = threads.map( Get_cdp_entry, mustcheck)
     
-    # debug only print ("Devicelist",devicelist)
-    # debug only: print ("Checklist",checklist)
     mustcheck = (set(devicelist) - set(checklist))
     print ("Devices that have to be checked: ",str(mustcheck))
     threads.close()
