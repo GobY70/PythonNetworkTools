@@ -1,5 +1,4 @@
 from netmiko import ConnectHandler
-from tcpping import tcpping
 import getpass
 import re
 from multiprocessing.dummy import Pool as ThreadPool
@@ -9,7 +8,7 @@ from time import time
 #password = "Cisco123"
 #IP = "192.168.148.133"
 
-wktools_commands=["interface eth 0/0\nno cdp enable\n" ]
+Configure_Commands=["interface eth 0/0\nno cdp enable\n" ]
 
 
 def check_newdevice (known,new):
@@ -18,13 +17,6 @@ def check_newdevice (known,new):
         if not item in known:
             reallynew.append(item)
     return(reallynew)
-
-def tcp_ssh_syn(IP):
-    if tcpping(str(IP),22,2):
-        return(True)
-    else:
-        return (False)
-
 
 
 def create_list_from_file(filename):
@@ -40,13 +32,12 @@ def create_list_from_file(filename):
         return(None)
 
 
-
 def get_wktools_output(IP):
     try:
         ssh_session = ConnectHandler(device_type="cisco_ios",ip=IP,username=username,password=password)
         hostname = str(ssh_session.find_prompt())[:-1]+"_config.txt"
         with open (hostname,"w") as outputfile:
-            for command in wktools_commands:
+            for command in Configure_Commands:
                 outputfile.write(command)
                 outputfile.write("\n")
                 commandoutput = ssh_session.send_config_set(command)
