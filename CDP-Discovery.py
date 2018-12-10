@@ -26,8 +26,8 @@ def Get_cdp_entry(IP):
         with open (filename,"w") as f:
             for neigbor in cdp_neighbors:
                 neighbor_no_fwdn = str(neigbor["neighbor"].split(".")[0])
-                f.write(hostname+" -> "+neigbor["local_interface"]+" -> "+neigbor["neighbor_interface"]+" -> "+neighbor_no_fwdn)
-                # debug only: print (hostname+" -> "+neigbor["local_interface"]+" -> "+neigbor["neighbor_interface"]+" -> "+neigbor["neighbor"])
+                f.write(hostname+" -- "+neigbor["local_interface"]+" -- "+neigbor["neighbor_interface"]+" -- "+neighbor_no_fwdn)
+                # debug only: print (hostname+" -- "+neigbor["local_interface"]+" -- "+neigbor["neighbor_interface"]+" -- "+neigbor["neighbor"])
                 f.write("\n")
         for neigbor in neigbors:
             devicelist.append(neigbor)

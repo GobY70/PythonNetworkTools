@@ -9,7 +9,7 @@ from time import time
 #password = "Cisco123"
 #IP = "192.168.148.133"
 
-wktools_commands=["aaa group server radius ISE\n server 172.30.104.201 auth-port 1812 acct-port 1813\nradius-server host 172.30.104.201 auth-port 1812 acct-port 1813 key RadKey4Ibiden" ]
+wktools_commands=["interface eth 0/0\nno cdp enable\n" ]
 
 
 def check_newdevice (known,new):
