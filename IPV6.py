@@ -22,7 +22,7 @@ def create_list_from_file(filename):
                 linelist.append(line)
         return (linelist)
     except Exception as e:
-        print(e)
+        print(Fore.RESET+e)
         return(None)
 
 
@@ -57,6 +57,9 @@ def get_version(ssh_session):
 
 def DeviceType_without_X(device_version):
     for ver in device_version:
+        if len(ver["hardware"])==0:
+            print (Fore.RESET+"No Hardwaretype found")
+            return False
         hw = ver["hardware"][0]
         if "2960" in hw:
             if "X" in hw:
@@ -77,21 +80,21 @@ def check_sdm(ssh):
     for sdm_line in sdm.split("\n"):
         if "The current template is" in sdm_line:
             current = re.findall(r'"(.*?)"', sdm_line)
-            #print (Fore.RED+hostname +" : sdm pefer is set to : "+current[0])
+            #print (Fore.RED+hostname +" : sdm pefer is set to : "+current[0]+Fore.RESET)
         if "On next reload" in sdm_line:
             next_reload = re.findall(r'"(.*?)"', sdm_line)
             if not next_reload:
                 next_reload="Not Set"
-            #print (Fore.RED+hostname + " : sdm pefer for next reload is set to : "+next_reload[0])
+            #print (Fore.RED+hostname + " : sdm pefer for next reload is set to : "+next_reload[0]+Fore.RESET)
         else:
             next_reload="Not Set"
     if "ipv6" in current[0]:
             return True
     if "ipv6" in next_reload[0]:
-        #print (Fore.RED+"Reload Needet for Device "+hostname)
+        #print (Fore.RED+"Reload Needet for Device "+hostname+Fore.RESET)
         return False
     if "Not set" in next_reload:
-        #print (Fore.RED+"sdm must set and device reload needet on "+hostname)
+        #print (Fore.RED+"sdm must set and device reload needet on "+hostname+Fore.RESET)
         return False
     
 
@@ -99,10 +102,11 @@ def check_sdm(ssh):
 
 def WORKER(IP):
     try: 
+        error = False
         ssh = Netmiko(device_type="cisco_ios",ip=IP,username=username,password=password)
         hostname = ssh.find_prompt()[:-1]
         logfile = hostname+"_ipv6_cfg.txt"
-        print (Fore.YELLOW+"Now connected to :",hostname)
+        print (Fore.YELLOW+"Now connected to :",hostname+Fore.RESET)
         # Check Supported Software not supported in 15.0
         device_version=get_version(ssh)
        
@@ -127,21 +131,26 @@ def WORKER(IP):
             # print (hostname + " : Devicetype not X")
             if check_sdm(ssh):
                 config=GlobalCommand+"\n"+interfaceconfig+"\n"
-                print (Fore.GREEN+hostname+" : Send Config")
+                print (Fore.GREEN+hostname+" : Send Config"+Fore.RESET)
             else:
-                print (Fore.RED+hostname + " : Error on device: IPv6 not enabled in SDM")
+                print (Fore.RED+hostname + " : Error on device: IPv6 not enabled in SDM"+Fore.RESET)
                 config=""
         else:
             config=GlobalCommand+"\n"+interfaceconfig+"\n"
-            print (Fore.GREEN+hostname+" : Send Config")
+            print (Fore.GREEN+hostname+" : Send Config"+Fore.RESET)
             
         configuration=ssh.send_config_set(config)
+        if "% Invalid input detected " in configuration:
+            error = True
         f = open(logfile,"w")
         f.write(configuration)   
         write_mem=ssh.send_command("write mem")
         f.write(write_mem)
         f.close()
-        print(Fore.RESET+hostname+" : Done")
+        if not error:
+            print(Fore.RESET+hostname+" : Done")
+        else:
+            print(Fore.RED+hostname+" : Done with Error, see Logfile: "+logfile+Fore.RESET)
         ssh.disconnect()
     except Exception as e:
         print (e)
