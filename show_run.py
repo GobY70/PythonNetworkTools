@@ -53,8 +53,13 @@ def get_wktools_output(IP):
             for command in wktools_commands:
                 outputfile.write(command)
                 outputfile.write("\n")
+                outputfile.write("-"*40)
+                outputfile.write("\n")
                 commandoutput = ssh_session.send_command(command)
                 outputfile.write(commandoutput) 
+                outputfile.write("\n")
+                outputfile.write("-"*40)
+                outputfile.write("\n")
         return(True)
     except Exception as e:
         print (e)
